@@ -1,3 +1,4 @@
+# Flask : Thư viện chạy local http
 from flask import Flask, render_template, request, Response
 import dlib
 import torch
@@ -31,13 +32,14 @@ def load_model():
 
 
 def make_transparent_foreground(pic, mask):
-    # split the image into channels
+    # chia hình ảnh thành các thành phần 
+    #  kiểu dữ liệu số nguyên có dấu với độ lớn 8 bits
     b, g, r = cv2.split(np.array(pic).astype('uint8'))
-    # add an alpha channel with and fill all with transparent pixels (max 255)
+    # tạo thêm thành phần a với 255 pixels có giá trị bằng 0 
     a = np.ones(mask.shape, dtype='uint8') * 255
-    # merge the alpha channel back
+    # Hợp nhất thành phần a vào ảnh đã chia
     alpha_im = cv2.merge([b, g, r, a], 4)
-    # create a transparent background
+    # Tạo mảng = 0 để làm background
     bg = np.zeros(alpha_im.shape)
     # setup the new mask
     new_mask = np.stack([mask, mask, mask, mask], axis=2)
@@ -350,13 +352,11 @@ def generate_frame2(path_bg, predictor):
         if not success:
             break
         else:
-
             # có frame
             try:
                 frame = swap_face.swap_face(img_bg, frame, predictor)
             except:
                 frame = frame
-            # print("FRame")
 
             if capture == True:
                 print("có capture")
@@ -402,15 +402,6 @@ def index2():
             path_faceswap = "static/Bradley.jpg"
         elif ind2 % 2 == 1:
             path_faceswap = "static/441px-Jim_Carrey_2008.jpg"
-        # elif ind2%2==2:
-        #     path_faceswap = "static/img_bg_2.jpg"
-        # elif ind2%2==3:
-        #     path_faceswap = "static/img_bg_3.jpg"
-        # else:
-        #     path_faceswap = "static/img_bg_4.jpg"
-
-        print(path_faceswap)
-        print(ind2)
 
         faceswap = request.files["file2"]
         if (faceswap.filename != ""):
@@ -518,14 +509,7 @@ def index3():
         if (ind3 % 2) == 0:
             path_nose = "static/pig_nose.png"
         elif ind3 % 2 == 1:
-            path_nose = "static/pig_nose.png"
-        # elif ind2%2==2:
-        #     path_faceswap = "static/img_bg_2.jpg"
-        # elif ind2%2==3:
-        #     path_faceswap = "static/img_bg_3.jpg"
-        # else:
-        #     path_faceswap = "static/img_bg_4.jpg"
-
+            path_nose = "static/pig_nose.png"       
         Nose = request.files["file2"]
         if (Nose.filename != ""):
             path_nose = os.path.join(
@@ -566,6 +550,5 @@ def video3():
         return Response(generate_frame3(path_nose, predictor), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
-# start server
 if __name__ == '__main__':
     app.run(host='', port=9999, debug=True)
